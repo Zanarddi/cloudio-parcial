@@ -83,8 +83,18 @@ app.post("/create", async (req, res) => {
 
 app.get("/list", async (req, res) => {
 
-
-    res.send("Testing your /list")
+    await AppDataSource
+    .createQueryBuilder()
+    .select("*")
+    .from("user", "u")
+    .getMany()
+    .then((result) => {
+        console.log(result);
+        res.status(200).send(result);
+    }).catch((err) => {
+        console.error(err);
+        res.status(500).send('Erro interno');
+    });
 })
 
 app.get("/list/:email", async (req, res) => {
@@ -92,7 +102,7 @@ app.get("/list/:email", async (req, res) => {
     let userEmail = req.params.email;
     console.log(userEmail);
 
-    let user = await AppDataSource
+    await AppDataSource
         .createQueryBuilder()
         .select("*")
         .from("user", "u")
@@ -100,10 +110,10 @@ app.get("/list/:email", async (req, res) => {
         .getOne()
         .then((result) => {
             console.log(result);
-            return result
+            res.status(200).send(result);
         }).catch((err) => {
             console.error(err);
-
+            res.status(500).send('Erro interno');
         });
 
     res.send('You tried to access: ' + req.url)
